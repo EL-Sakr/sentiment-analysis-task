@@ -1,0 +1,40 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.preprocessing import sequence
+from tensorflow.keras.datasets import imdb
+
+max_words = 10000
+maxlen = 100
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_words)
+
+x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+
+model = keras.Sequential([
+    keras.layers.Embedding(max_words, 128, input_length=maxlen),
+    keras.layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test))
+
+loss, accuracy = model.evaluate(x_test, y_test)
+print(f'Test Accuracy: {accuracy:.4f}')
+
+# Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/imdb.npz
+# 17464789/17464789 ━━━━━━━━━━━━━━━━━━━ 0s 0us/step
+# Epoch 1/5
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 142s 173ms/step - accuracy: 0.7205 - loss: 0.5269 - val_accuracy: 0.8429 - val_loss: 0.3642
+# Epoch 2/5
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 133s 170ms/step - accuracy: 0.8747 - loss: 0.3108 - val_accuracy: 0.8473 - val_loss: 0.3564
+# Epoch 3/5
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 142s 171ms/step - accuracy: 0.8999 - loss: 0.2547 - val_accuracy: 0.8470 - val_loss: 0.3806
+# Epoch 4/5
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 135s 173ms/step - accuracy: 0.9289 - loss: 0.1898 - val_accuracy: 0.8357 - val_loss: 0.3885
+# Epoch 5/5
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 134s 172ms/step - accuracy: 0.9467 - loss: 0.1459 - val_accuracy: 0.8427 - val_loss: 0.4814
+# 782/782 ━━━━━━━━━━━━━━━━━━━ 20s 25ms/step - accuracy: 0.8419 - loss: 0.4900
+# Test Accuracy: 0.8427
